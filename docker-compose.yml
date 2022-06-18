@@ -1,0 +1,41 @@
+version: "3"
+
+services:
+    production-service:
+        image: webdevops/php:8.0
+        ports:
+            - 8081:80
+        working_dir: /app
+        environment: 
+            - WEB_DOCUMENT_ROOT=/app/public
+            - PHP_MEMORY_LIMIT=512M
+            - PHP_MAX_EXECUTION_TIME=30
+            - PHP_POST_MAX_SIZE=20M
+            - PHP_UPLOAD_MAX_FILESIZE=20M
+        volumes:
+            - './app:/app'
+    production_DB:
+        image: postgres:11.12
+        environment:
+            POSTGRES_DB: production
+            POSTGRES_USER: root
+            POSTGRES_PASSWORD: root
+        volumes:
+            - production-db-data:/var/lib/postgresql/data/
+        ports:
+            - "8310:5432"
+        command: ["postgres", "-c", "logging_collector=on", "-c", "log_destination=stderr", "-c", "max_connections=10000"]
+    production_test_DB:
+        image: postgres:11.12
+        environment:
+            POSTGRES_DB: production
+            POSTGRES_USER: root
+            POSTGRES_PASSWORD: root
+        volumes:
+            - production-test-db-data:/var/lib/postgresql/data/
+        ports:
+            - "8311:5432"
+        command: ["postgres", "-c", "logging_collector=on", "-c", "log_destination=stderr", "-c", "max_connections=10000"]
+volumes:
+    production-db-data:
+    production-test-db-data:
